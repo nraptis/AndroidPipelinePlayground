@@ -1,6 +1,5 @@
 package com.example.droidrenderdemoearth
 
-import android.content.Context
 import android.opengl.GLES20
 import java.lang.ref.WeakReference
 import java.nio.ByteBuffer
@@ -19,12 +18,12 @@ val triangleCoords = arrayOf(
     Vertex(0.5f, -0.311004243f, 0.0f)      // bottom right
 )
 
-class Triangle(shaderLibrary: ShaderLibrary) {
+class Triangle(graphicsPipeline: GraphicsPipeline) {
 
 
-    private val shaderLibraryRef: WeakReference<ShaderLibrary> = WeakReference(shaderLibrary)
-    val shaderLibrary: ShaderLibrary?
-        get() = shaderLibraryRef.get()
+    private val graphicsPipelineRef: WeakReference<GraphicsPipeline> = WeakReference(graphicsPipeline)
+    val graphicsPipeline: GraphicsPipeline?
+        get() = graphicsPipelineRef.get()
 
 
     init {
@@ -65,7 +64,7 @@ class Triangle(shaderLibrary: ShaderLibrary) {
     fun draw() {
         // Add program to OpenGL ES environment
 
-        shaderLibrary?.let { _shaderLibrary ->
+        graphicsPipeline?.let { _shaderLibrary ->
 
             GLES20.glUseProgram(_shaderLibrary.shitProgram)
 

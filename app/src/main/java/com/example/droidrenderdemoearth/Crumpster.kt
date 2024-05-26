@@ -1,40 +1,59 @@
-
 package com.example.droidrenderdemoearth
 
 import android.graphics.Bitmap
 import android.opengl.GLES20
 import java.lang.ref.WeakReference
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.nio.FloatBuffer
+import java.nio.IntBuffer
 
-data class Vertex2D(val x: Float, val y: Float)
-data class TexTex2D(val u: Float, val v: Float)
+data class CrumpVertexSprite2D(var x: Float, var y: Float) : FloatBufferable {
 
+    override fun writeToBuffer(buffer: FloatBuffer) {
+        buffer.put(x)
+        buffer.put(y)
+    }
 
-val shizzardVertices = arrayOf(
-    Vertex2D(-0.5f, -0.5f),
-    Vertex2D(0.5f, -0.5f),
-    Vertex2D(-0.5f, 0.5f),
+    override fun size(): Int {
+        return 2 // Each vertex has 2 float components (x, y)
+    }
+}
 
-    Vertex2D(0.5f, -0.5f),
-    Vertex2D(-0.5f, 0.5f),
-    Vertex2D(0.5f, 0.5f)
+data class CrumpTexTex2D(var u: Float, var v: Float) : FloatBufferable {
+    override fun writeToBuffer(buffer: FloatBuffer) {
+        buffer.put(u)
+        buffer.put(v)
+    }
+
+    override fun size(): Int {
+        return 2 // Each vertex has 2 float components (x, y)
+    }
+}
+
+val crumpsVertices = arrayOf(
+    CrumpVertexSprite2D(-0.5f - 0.2f, -0.5f + 0.3f),
+    CrumpVertexSprite2D(0.5f - 0.2f, -0.5f + 0.3f),
+    CrumpVertexSprite2D(-0.5f - 0.2f, 0.5f + 0.3f),
+
+    CrumpVertexSprite2D(0.5f - 0.2f, -0.5f + 0.3f),
+    CrumpVertexSprite2D(-0.5f - 0.2f, 0.5f + 0.3f),
+    CrumpVertexSprite2D(0.5f - 0.2f, 0.5f + 0.3f)
 )
 
-val shizzardTexticies = arrayOf(
-    TexTex2D(0.0f, 0.0f),
-    TexTex2D(1.0f, 0.0f),
-    TexTex2D(0.0f, 1.0f),
+val crumpsTexticies = arrayOf(
+    CrumpTexTex2D(0.0f, 0.0f),
+    CrumpTexTex2D(1.0f, 0.0f),
+    CrumpTexTex2D(0.0f, 1.0f),
 
-    TexTex2D(1.0f, 0.0f),
-    TexTex2D(0.0f, 1.0f),
-    TexTex2D(1.0f, 1.0f))
+    CrumpTexTex2D(1.0f, 0.0f),
+    CrumpTexTex2D(0.0f, 1.0f),
+    CrumpTexTex2D(1.0f, 1.0f))
 
-class Shizzard(graphicsPipeline: GraphicsPipeline,
+class Crumpster(graphicsPipeline: GraphicsPipeline,
                bitmap: Bitmap?,
                graphics: GraphicsLibrary?) {
 
+    val indices = intArrayOf(0, 1, 2, 3, 4, 5)
+    val indexBuffer: IntBuffer
 
     private val bitmapRef: WeakReference<Bitmap> = WeakReference(bitmap)
     val bitmap: Bitmap?
@@ -52,30 +71,36 @@ class Shizzard(graphicsPipeline: GraphicsPipeline,
 
     private var textureSlot = 0
 
+    private var svn = 0.0f
+
+    //crumpsVertices
+
+    val positionBuffer: FloatBuffer
+    val textureBuffer: FloatBuffer
+
     init {
+        graphics?.let { _gfx ->
+            textureSlot = _gfx.textureGenerate(bitmap)
+        }
+        println("textureSlot = " + textureSlot)
 
-            graphics?.let { _gfx ->
-                textureSlot = _gfx.textureGenerate(bitmap)
+        positionBuffer = graphics?.floatBufferGenerate(crumpsVertices) ?: FloatBuffer.allocate(0)
+        textureBuffer = graphics?.floatBufferGenerate(crumpsTexticies) ?: FloatBuffer.allocate(0)
 
-            }
-
-            println("textureSlot = " + textureSlot)
-
-
+        indexBuffer = graphics?.indexBufferGenerate(indices) ?: IntBuffer.allocate(0)
     }
 
-
-
+    /*
     private var positionBuffer: FloatBuffer =
         // Allocate buffer memory
-        ByteBuffer.allocateDirect(shizzardVertices.size * 6 * Float.SIZE_BYTES).run {
+        ByteBuffer.allocateDirect(crumpsVertices.size * 6 * Float.SIZE_BYTES).run {
             // Use native byte order
             order(ByteOrder.nativeOrder())
 
             // Create FloatBuffer from ByteBuffer
             asFloatBuffer().apply {
                 // Add coordinates to FloatBuffer
-                shizzardVertices.forEach { vertex ->
+                crumpsVertices.forEach { vertex ->
                     put(vertex.x)
                     put(vertex.y)
                 }
@@ -86,14 +111,14 @@ class Shizzard(graphicsPipeline: GraphicsPipeline,
 
     private var textuerrerBuffer: FloatBuffer =
         // Allocate buffer memory
-        ByteBuffer.allocateDirect(shizzardTexticies.size * 6 * Float.SIZE_BYTES).run {
+        ByteBuffer.allocateDirect(crumpsTexticies.size * 6 * Float.SIZE_BYTES).run {
             // Use native byte order
             order(ByteOrder.nativeOrder())
 
             // Create FloatBuffer from ByteBuffer
             asFloatBuffer().apply {
                 // Add coordinates to FloatBuffer
-                shizzardTexticies.forEach { vertex ->
+                crumpsTexticies.forEach { vertex ->
                     put(vertex.u)
                     put(vertex.v)
                 }
@@ -102,14 +127,25 @@ class Shizzard(graphicsPipeline: GraphicsPipeline,
             }
         }
 
+     */
 
     private var positionHandle: Int = 0
     private var textoeHandle: Int = 0
 
-
-
     fun draw() {
         // Add program to OpenGL ES environment
+        val piFloat: Float = kotlin.math.PI.toFloat()
+
+        svn += 0.01f
+        if (svn > (2.0f * piFloat)) {
+            svn -=  2.0f * piFloat
+        }
+
+        val sineValue: Float = kotlin.math.sin(svn.toDouble()).toFloat()
+
+        crumpsVertices[0].x = -0.6f + sineValue * 0.1f
+        graphics?.floatBufferWrite(crumpsVertices, positionBuffer)
+
 
         graphicsPipeline?.let { _shaderLibrary ->
 
@@ -129,7 +165,6 @@ class Shizzard(graphicsPipeline: GraphicsPipeline,
                     // Bind the texture
 
                     //GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureSlot)
-
                     graphics?.textureBind(textureSlot)
 
                     GLES20.glUniform1i(GLES20.glGetUniformLocation(_shaderLibrary.spriteProgram, "Texture"), 0)
@@ -150,13 +185,19 @@ class Shizzard(graphicsPipeline: GraphicsPipeline,
                         GLES20.GL_FLOAT,
                         false,
                         Float.SIZE_BYTES * 2,
-                        textuerrerBuffer
+                        textureBuffer
                     )
 
 
 
                     // Draw the triangle
-                    GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6)
+                    //GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6)
+
+                    //GLES20.glDrawElements()
+
+                    //GLES20.glDrawElements(GL_TRIANGLES, pCount, GL_UNSIGNED_INT, indices)
+
+                    GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6, GLES20.GL_UNSIGNED_INT, indexBuffer)
 
                     // Disable vertex array
                     GLES20.glDisableVertexAttribArray(pozition)

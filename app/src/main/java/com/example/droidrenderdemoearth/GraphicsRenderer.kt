@@ -9,10 +9,13 @@ import android.opengl.GLSurfaceView
 import java.lang.ref.WeakReference
 
 class GraphicsRenderer(context: Context,
-                       surfaceView: GraphicsSurfaceView) : GLSurfaceView.Renderer {
+                       activity: GraphicsActivity?,
+                       surfaceView: GraphicsSurfaceView?) : GLSurfaceView.Renderer {
 
 
-    private lateinit var shaderLibrary: ShaderLibrary
+    private lateinit var graphicsPipeline: GraphicsPipeline
+
+    private lateinit var graphics: GraphicsLibrary
 
     private val contextRef: WeakReference<Context> = WeakReference(context)
     val context: Context?
@@ -22,12 +25,21 @@ class GraphicsRenderer(context: Context,
     val surfaceView: GraphicsSurfaceView?
         get() = surfaceViewRef.get()
 
+    private val activityRef: WeakReference<GraphicsActivity> = WeakReference(activity)
+    val activity: GraphicsActivity?
+        get() = activityRef.get()
+
 
 
     private lateinit var mTriangle: Triangle
 
 
     private lateinit var mShizzard: Shizzard
+
+    private lateinit var mCrumpster: Crumpster
+
+
+
 
 
 
@@ -38,12 +50,17 @@ class GraphicsRenderer(context: Context,
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
 
-        shaderLibrary = ShaderLibrary(context ?: return)
+        graphicsPipeline = GraphicsPipeline(context ?: return)
+
+        graphics = GraphicsLibrary(activity, this, graphicsPipeline, surfaceView)
+
 
         // initialize a triangle
-        mTriangle = Triangle(shaderLibrary)
+        mTriangle = Triangle(graphicsPipeline)
 
         var bitmap: Bitmap?
+        var bitmap2: Bitmap?
+
 
         println("hello")
 
@@ -55,7 +72,18 @@ class GraphicsRenderer(context: Context,
 
         }
 
-        mShizzard = Shizzard(shaderLibrary, bitmap)
+        context.let {
+            bitmap2 = it?.let { it1 -> FileUtils.readFileFromAssetAsBitmap(it1, "galaxy.jpg") }
+
+            bitmap2?.let { println("it.width = " + it.width) }
+            bitmap2?.let { println("it.height = " + it.height) }
+
+        }
+
+        mShizzard = Shizzard(graphicsPipeline, bitmap2, graphics)
+
+        mCrumpster = Crumpster(graphicsPipeline, bitmap, graphics)
+
 
         // Set the background frame color
         GLES20.glClearColor(0.0f, 0.15f, 0.4f, 1.0f)
@@ -68,6 +96,8 @@ class GraphicsRenderer(context: Context,
         mTriangle.draw()
 
         mShizzard.draw()
+
+        mCrumpster.draw()
 
         surfaceView?.requestRender()
     }

@@ -4,7 +4,7 @@ import android.content.Context
 import android.opengl.GLES20
 import java.lang.ref.WeakReference
 
-class ShaderLibrary(context: Context) {
+class GraphicsPipeline(context: Context) {
 
     private val contextRef: WeakReference<Context> = WeakReference(context)
     val context: Context?
