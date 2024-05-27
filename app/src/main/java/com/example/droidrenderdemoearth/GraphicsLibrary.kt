@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.opengl.GLES20
 import java.lang.ref.WeakReference
+import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -45,6 +46,47 @@ class GraphicsLibrary(activity: GraphicsActivity?,
     }
 
 
+    fun programUse(shaderProgram: ShaderProgram?) {
+        shaderProgram?.let {
+            if (it.program != 0) {
+                GLES20.glUseProgram(it.program)
+            }
+        }
+    }
+
+
+    fun bufferArrayGenerate(length: Int): Int {
+        if (length > 0) {
+            val bufferHandle = IntArray(1)
+            GLES20.glGenBuffers(1, bufferHandle, 0)
+            return bufferHandle[0]
+        }
+        return -1
+    }
+
+    fun bufferArrayWrite(index: Int, size: Int, buffer: Buffer?) {
+        if (index != -1) {
+            buffer.let { _buffer ->
+                GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, index)
+                GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, size, _buffer, GLES20.GL_DYNAMIC_DRAW)
+            }
+        }
+    }
+
+    fun <T>bufferArrayBind(graphicsArrayBuffer: GraphicsArrayBuffer<T>?) where T : FloatBufferable {
+        graphicsArrayBuffer?.let { _graphicsArrayBuffer ->
+            if (_graphicsArrayBuffer.bufferIndex != -1) {
+                GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, _graphicsArrayBuffer.bufferIndex)
+            }
+        }
+    }
+
+    fun bufferArrayBind(index: Int) {
+        if (index != -1) {
+            GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, index)
+        }
+    }
+
     fun indexBufferGenerate(array: Array<Int>): IntBuffer {
         val result = ByteBuffer.allocateDirect(array.size * Int.SIZE_BYTES)
             .order(ByteOrder.nativeOrder())
@@ -53,17 +95,19 @@ class GraphicsLibrary(activity: GraphicsActivity?,
         return result
     }
 
-    fun indexBufferWrite(array: Array<Int>, intBuffer: IntBuffer) {
+    fun indexBufferWrite(array: Array<Int>, intBuffer: IntBuffer?) {
 
         // Reset buffer position to the beginning
-        intBuffer.position(0)
+        intBuffer?.let { _intBuffer ->
+            _intBuffer.position(0)
 
-        for (element in array) {
-            intBuffer.put(element)
+            for (element in array) {
+                _intBuffer.put(element)
+            }
+
+            // Reset buffer position to the beginning
+            _intBuffer.position(0)
         }
-
-        // Reset buffer position to the beginning
-        intBuffer.position(0)
     }
 
     fun indexBufferGenerate(array: IntArray): IntBuffer {
@@ -74,27 +118,22 @@ class GraphicsLibrary(activity: GraphicsActivity?,
         return result
     }
 
-    fun indexBufferWrite(array: IntArray, intBuffer: IntBuffer) {
+    fun indexBufferWrite(array: IntArray, intBuffer: IntBuffer?) {
         // Reset buffer position to the beginning
-        intBuffer.position(0)
-
-        for (element in array) {
-            intBuffer.put(element)
+        intBuffer?.let { _intBuffer ->
+            _intBuffer.position(0)
+            for (element in array) {
+                _intBuffer.put(element)
+            }
+            _intBuffer.position(0)
         }
-
-        // Reset buffer position to the beginning
-        intBuffer.position(0)
     }
 
     fun <T> floatBufferGenerate(array: Array<T>): FloatBuffer where T : FloatBufferable {
-        // Assume all elements in the array have the same size
-        var elementSize = 0
 
-        if (array.isNotEmpty()) {
-            elementSize = array[0].size()
-        }
+
         // Calculate the total size needed for the buffer
-        val totalSize = array.size * elementSize
+        val totalSize = floatBufferSize(array)
 
         // Allocate the buffer memory
         val result = ByteBuffer.allocateDirect(totalSize * Float.SIZE_BYTES).run {
@@ -107,16 +146,29 @@ class GraphicsLibrary(activity: GraphicsActivity?,
         return result
     }
 
-    fun <T> floatBufferWrite(array: Array<T>, floatBuffer: FloatBuffer) where T : FloatBufferable {
+    fun <T> floatBufferSize(array: Array<T>): Int where T : FloatBufferable {
+        // Assume all elements in the array have the same size
+        var elementSize = 0
 
-        // Reset buffer position to the beginning
-        floatBuffer.position(0)
+        if (array.isNotEmpty()) {
+            elementSize = array[0].size()
+        }
+        // Calculate the total size needed for the buffer
+        return array.size * elementSize
+    }
 
-        // Write each Bufferable's data to the buffer
-        array.forEach { it.writeToBuffer(floatBuffer) }
+    fun <T> floatBufferWrite(array: Array<T>, floatBuffer: FloatBuffer?) where T : FloatBufferable {
 
-        // Reset buffer position to the beginning
-        floatBuffer.position(0)
+        floatBuffer?.let {_floatBuffer ->
+            // Reset buffer position to the beginning
+            _floatBuffer.position(0)
+
+            // Write each Bufferable's data to the buffer
+            array.forEach { it.writeToBuffer(_floatBuffer) }
+
+            // Reset buffer position to the beginning
+            _floatBuffer.position(0)
+        }
     }
 
     /*

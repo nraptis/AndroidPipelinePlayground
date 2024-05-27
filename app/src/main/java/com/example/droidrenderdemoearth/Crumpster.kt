@@ -3,50 +3,18 @@ package com.example.droidrenderdemoearth
 import android.graphics.Bitmap
 import android.opengl.GLES20
 import java.lang.ref.WeakReference
+import java.nio.Buffer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 
-data class CrumpVertexSprite2D(var x: Float, var y: Float) : FloatBufferable {
-
-    override fun writeToBuffer(buffer: FloatBuffer) {
-        buffer.put(x)
-        buffer.put(y)
-    }
-
-    override fun size(): Int {
-        return 2 // Each vertex has 2 float components (x, y)
-    }
-}
-
-data class CrumpTexTex2D(var u: Float, var v: Float) : FloatBufferable {
-    override fun writeToBuffer(buffer: FloatBuffer) {
-        buffer.put(u)
-        buffer.put(v)
-    }
-
-    override fun size(): Int {
-        return 2 // Each vertex has 2 float components (x, y)
-    }
-}
-
-val crumpsVertices = arrayOf(
-    CrumpVertexSprite2D(-0.5f - 0.2f, -0.5f + 0.3f),
-    CrumpVertexSprite2D(0.5f - 0.2f, -0.5f + 0.3f),
-    CrumpVertexSprite2D(-0.5f - 0.2f, 0.5f + 0.3f),
-
-    CrumpVertexSprite2D(0.5f - 0.2f, -0.5f + 0.3f),
-    CrumpVertexSprite2D(-0.5f - 0.2f, 0.5f + 0.3f),
-    CrumpVertexSprite2D(0.5f - 0.2f, 0.5f + 0.3f)
+val crumpVertz = arrayOf(
+    VertexSprite2D(-0.5f - 0.2f, -0.5f + 0.3f, 0.0f, 0.0f),
+    VertexSprite2D(0.5f - 0.2f, -0.5f + 0.3f, 1.0f, 0.0f),
+    VertexSprite2D(-0.5f - 0.2f, 0.5f + 0.3f, 0.0f, 1.0f),
+    VertexSprite2D(0.5f - 0.2f, -0.5f + 0.3f, 1.0f, 0.0f),
+    VertexSprite2D(-0.5f - 0.2f, 0.5f + 0.3f, 0.0f, 1.0f),
+    VertexSprite2D(0.5f - 0.2f, 0.5f + 0.3f, 1.0f, 1.0f)
 )
-
-val crumpsTexticies = arrayOf(
-    CrumpTexTex2D(0.0f, 0.0f),
-    CrumpTexTex2D(1.0f, 0.0f),
-    CrumpTexTex2D(0.0f, 1.0f),
-
-    CrumpTexTex2D(1.0f, 0.0f),
-    CrumpTexTex2D(0.0f, 1.0f),
-    CrumpTexTex2D(1.0f, 1.0f))
 
 class Crumpster(graphicsPipeline: GraphicsPipeline,
                bitmap: Bitmap?,
@@ -73,10 +41,11 @@ class Crumpster(graphicsPipeline: GraphicsPipeline,
 
     private var svn = 0.0f
 
-    //crumpsVertices
+    val gabbo: GraphicsArrayBuffer<VertexSprite2D>
 
-    val positionBuffer: FloatBuffer
-    val textureBuffer: FloatBuffer
+    //val vertexBuffer: FloatBuffer
+    //var bufferIndex: Int
+
 
     init {
         graphics?.let { _gfx ->
@@ -84,10 +53,24 @@ class Crumpster(graphicsPipeline: GraphicsPipeline,
         }
         println("textureSlot = " + textureSlot)
 
-        positionBuffer = graphics?.floatBufferGenerate(crumpsVertices) ?: FloatBuffer.allocate(0)
-        textureBuffer = graphics?.floatBufferGenerate(crumpsTexticies) ?: FloatBuffer.allocate(0)
+        gabbo = GraphicsArrayBuffer(graphics, crumpVertz)
+
 
         indexBuffer = graphics?.indexBufferGenerate(indices) ?: IntBuffer.allocate(0)
+
+        /*
+        val FbSize = graphics?.floatBufferSize(crumpVertz) ?: 0
+
+        println("FbSize = " + FbSize)
+
+        vertexBuffer = graphics?.floatBufferGenerate(crumpVertz) ?: FloatBuffer.allocate(0)
+
+
+
+        bufferIndex = graphics?.bufferArrayGenerate(FbSize * Float.SIZE_BYTES) ?: 0
+        graphics?.bufferArrayWrite(bufferIndex, FbSize * Float.SIZE_BYTES, vertexBuffer)
+        */
+
     }
 
     /*
@@ -141,53 +124,66 @@ class Crumpster(graphicsPipeline: GraphicsPipeline,
             svn -=  2.0f * piFloat
         }
 
+        val FbSize = graphics?.floatBufferSize(crumpVertz) ?: 0
+
         val sineValue: Float = kotlin.math.sin(svn.toDouble()).toFloat()
 
-        crumpsVertices[0].x = -0.6f + sineValue * 0.1f
-        graphics?.floatBufferWrite(crumpsVertices, positionBuffer)
+
+        crumpVertz[0].x = -0.6f + sineValue * 0.1f
+        //graphics?.floatBufferWrite(crumpVertz, vertexBuffer)
+        //graphics?.bufferArrayWrite(bufferIndex, FbSize * Float.SIZE_BYTES, vertexBuffer)
+
+        gabbo.write(crumpVertz)
 
 
-        graphicsPipeline?.let { _shaderLibrary ->
+        graphicsPipeline?.shaderProgramSpriteDemo?.let { program ->
 
-            GLES20.glUseProgram(_shaderLibrary.spriteProgram)
+            //GLES20.glUseProgram(_shaderLibrary.DEMO___spriteProgram)
+            graphics?.programUse(graphicsPipeline?.shaderProgramSpriteDemo)
 
-            positionHandle = GLES20.glGetAttribLocation(_shaderLibrary.spriteProgram, "Positions").also { pozition ->
 
-
-                textoeHandle = GLES20.glGetAttribLocation(_shaderLibrary.spriteProgram, "TextureCoords").also { texxztt ->
-
+            //GLES20.glBindBuffer()
 
 
                     // Enable a handle to the triangle vertices
-                    GLES20.glEnableVertexAttribArray(pozition)
-                    GLES20.glEnableVertexAttribArray(texxztt)
+                    GLES20.glEnableVertexAttribArray(program.attributeLocationPosition)
+                    GLES20.glEnableVertexAttribArray(program.attributeLocationTextureCoordinates)
 
                     // Bind the texture
 
                     //GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureSlot)
                     graphics?.textureBind(textureSlot)
 
-                    GLES20.glUniform1i(GLES20.glGetUniformLocation(_shaderLibrary.spriteProgram, "Texture"), 0)
+                    GLES20.glUniform1i(program.uniformLocationTexture, 0)
 
+
+            //GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bufferIndex)
+            graphics?.bufferArrayBind(gabbo)
+
+            GLES20.glEnableVertexAttribArray(program.attributeLocationPosition)
                     // Prepare the triangle coordinate data
-                    GLES20.glVertexAttribPointer(
-                        pozition,
+
+            GLES20.glVertexAttribPointer(program.attributeLocationPosition,
+                2, GLES20.GL_FLOAT, false, Float.SIZE_BYTES * 4, 0)
+
+
+
+            GLES20.glEnableVertexAttribArray(program.attributeLocationTextureCoordinates)
+            // Prepare the triangle coordinate data
+
+            GLES20.glVertexAttribPointer(program.attributeLocationTextureCoordinates,
+                2, GLES20.GL_FLOAT, false, Float.SIZE_BYTES * 4, Float.SIZE_BYTES * 2)
+
+            /*
+            GLES20.glVertexAttribPointer(
+                        program.,
                         2,
                         GLES20.GL_FLOAT,
                         false,
-                        Float.SIZE_BYTES * 2,
-                        positionBuffer
+                        Float.SIZE_BYTES * 4,
+                        vertexBuffer
                     )
-
-                    GLES20.glVertexAttribPointer(
-                        texxztt,
-                        2,
-                        GLES20.GL_FLOAT,
-                        false,
-                        Float.SIZE_BYTES * 2,
-                        textureBuffer
-                    )
-
+*/
 
 
                     // Draw the triangle
@@ -200,10 +196,10 @@ class Crumpster(graphicsPipeline: GraphicsPipeline,
                     GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6, GLES20.GL_UNSIGNED_INT, indexBuffer)
 
                     // Disable vertex array
-                    GLES20.glDisableVertexAttribArray(pozition)
-                    GLES20.glDisableVertexAttribArray(texxztt)
-                }
-            }
+                    GLES20.glDisableVertexAttribArray(program.attributeLocationPosition)
+                    GLES20.glDisableVertexAttribArray(program.attributeLocationTextureCoordinates)
+
+
         }
     }
 }

@@ -34,7 +34,6 @@ class GraphicsRenderer(context: Context,
     private lateinit var mTriangle: Triangle
 
 
-    private lateinit var mShizzard: Shizzard
 
     private lateinit var mCrumpster: Crumpster
 
@@ -80,8 +79,6 @@ class GraphicsRenderer(context: Context,
 
         }
 
-        mShizzard = Shizzard(graphicsPipeline, bitmap2, graphics)
-
         mCrumpster = Crumpster(graphicsPipeline, bitmap, graphics)
 
 
@@ -95,7 +92,6 @@ class GraphicsRenderer(context: Context,
 
         mTriangle.draw()
 
-        mShizzard.draw()
 
         mCrumpster.draw()
 

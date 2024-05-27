@@ -25,7 +25,7 @@ data class Matrix(
     var m32: Float = 0.0f,
     var m33: Float = 1.0f
 ) : FloatBufferable {
-    
+
     override fun writeToBuffer(buffer: FloatBuffer) {
         buffer.put(m00)
         buffer.put(m01)

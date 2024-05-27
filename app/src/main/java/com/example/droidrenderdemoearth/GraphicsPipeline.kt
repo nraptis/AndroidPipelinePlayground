@@ -19,11 +19,50 @@ class GraphicsPipeline(context: Context) {
 
 
 
-    val spriteVertex: Int
-    val spriteFragment: Int
+    val DEMO___spriteVertex: Int
+    val DEMO_____spriteFragment: Int
+    //val DEMO___spriteProgram: Int
+    val shaderProgramSpriteDemo: ShaderProgramSpriteDemo
+
+    val functionSprite2DVertex: Int
+    val functionSprite2DFragment: Int
+
+    var programSprite2D: ShaderProgramSprite2D
+
+    //sprite_2d_vertex.glsl
+    //sprite_2d_fragment.glsl
 
 
-    val spriteProgram: Int
+
+
+    //uniform mat4 ProjectionMatrix;
+    //uniform mat4 ModelViewMatrix;
+    //attribute vec2 Positions;
+    //attribute vec2 TextureCoordinates;
+
+    //uniform lowp vec4 ModulateColor;
+    //varying lowp vec2 TextureCoordinatesOut;
+    //uniform sampler2D Texture;
+
+
+    //positionHandle = GLES20.glGetAttribLocation(_shaderLibrary.DEMO___spriteProgram, "Positions").also { pozition ->
+
+
+        //textoeHandle = GLES20.glGetAttribLocation(_shaderLibrary.DEMO___spriteProgram, "TextureCoords").also { texxztt ->
+
+            //GLES20.glUniform1i(GLES20.glGetUniformLocation(_shaderLibrary.DEMO___spriteProgram, "Texture"), 0)
+
+
+
+
+            //val spriteVertex: Int
+    //val spriteFragment: Int
+    //val spriteProgram: Int
+
+
+    //sprite_vertex_shader.glsl
+    //sprite_fragment_shader.glsl
+
 
 
 
@@ -35,11 +74,21 @@ class GraphicsPipeline(context: Context) {
 
 
 
-        spriteVertex = loadShaderVertex("texture_test_vertex.glsl")
-        spriteFragment = loadShaderFragment("texture_test_fragment.glsl")
-        spriteProgram = loadProgram(spriteVertex, spriteFragment)
+        DEMO___spriteVertex = loadShaderVertex("texture_test_vertex.glsl")
+        DEMO_____spriteFragment = loadShaderFragment("texture_test_fragment.glsl")
+        //DEMO___spriteProgram = loadProgram(DEMO___spriteVertex, DEMO_____spriteFragment)
+        shaderProgramSpriteDemo = ShaderProgramSpriteDemo("DEMO_SPrITe",
+            DEMO___spriteVertex,
+            DEMO_____spriteFragment)
+
+        functionSprite2DVertex = loadShaderVertex("sprite_2d_vertex.glsl")
+        functionSprite2DFragment = loadShaderFragment("sprite_2d_fragment.glsl")
+
+        programSprite2D = ShaderProgramSprite2D("sprite_2d", functionSprite2DVertex, functionSprite2DFragment)
 
 
+        //
+        //
 
 
     }
