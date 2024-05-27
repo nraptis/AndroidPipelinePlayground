@@ -23,8 +23,7 @@ data class Matrix(
     var m30: Float = 0.0f,
     var m31: Float = 0.0f,
     var m32: Float = 0.0f,
-    var m33: Float = 1.0f
-) : FloatBufferable {
+    var m33: Float = 1.0f) : FloatBufferable {
 
     override fun writeToBuffer(buffer: FloatBuffer) {
         buffer.put(m00)
@@ -137,6 +136,24 @@ data class Matrix(
         )
     }
 
+
+    fun rotationZ(radians: Float) {
+        val _cos = cos(radians)
+        val _sin = sin(radians)
+        make(
+            m00 = _cos, m01 = _sin, m02 = 0.0f, m03 = 0.0f,
+            m10 = -_sin, m11 = _cos, m12 = 0.0f, m13 = 0.0f,
+            m20 = 0.0f, m21 = 0.0f, m22 = 1.0f, m23 = 0.0f,
+            m30 = 0.0f, m31 = 0.0f, m32 = 0.0f, m33 = 1.0f
+        )
+    }
+
+    fun rotateZ(radians: Float) {
+        val rotationMatrix = Matrix()
+        rotationMatrix.rotationZ(radians)
+        multiply(rotationMatrix)
+    }
+
     /*
     fun rotateX(degrees: Float) {
         rotateX(Math.radians(degrees))
@@ -170,9 +187,7 @@ data class Matrix(
         // Implementation needed based on requirements
     }
 
-    fun rotateZ(degrees: Float) {
-        rotateZ(Math.radians(degrees))
-    }
+
 
     fun rotateZ(radians: Float) {
         // Implementation needed based on requirements
@@ -214,4 +229,70 @@ data class Matrix(
         // Implementation needed based on requirements
     }
     */
+
+    fun multiply(matrixLeft: Matrix, matrixRight: Matrix): Matrix {
+        val result = Matrix()
+
+        result.m00 = matrixLeft.m00 * matrixRight.m00 + matrixLeft.m10 * matrixRight.m01 + matrixLeft.m20 * matrixRight.m02 + matrixLeft.m30 * matrixRight.m03
+        result.m10 = matrixLeft.m00 * matrixRight.m10 + matrixLeft.m10 * matrixRight.m11 + matrixLeft.m20 * matrixRight.m12 + matrixLeft.m30 * matrixRight.m13
+        result.m20 = matrixLeft.m00 * matrixRight.m20 + matrixLeft.m10 * matrixRight.m21 + matrixLeft.m20 * matrixRight.m22 + matrixLeft.m30 * matrixRight.m23
+        result.m30 = matrixLeft.m00 * matrixRight.m30 + matrixLeft.m10 * matrixRight.m31 + matrixLeft.m20 * matrixRight.m32 + matrixLeft.m30 * matrixRight.m33
+
+        result.m01 = matrixLeft.m01 * matrixRight.m00 + matrixLeft.m11 * matrixRight.m01 + matrixLeft.m21 * matrixRight.m02 + matrixLeft.m31 * matrixRight.m03
+        result.m11 = matrixLeft.m01 * matrixRight.m10 + matrixLeft.m11 * matrixRight.m11 + matrixLeft.m21 * matrixRight.m12 + matrixLeft.m31 * matrixRight.m13
+        result.m21 = matrixLeft.m01 * matrixRight.m20 + matrixLeft.m11 * matrixRight.m21 + matrixLeft.m21 * matrixRight.m22 + matrixLeft.m31 * matrixRight.m23
+        result.m31 = matrixLeft.m01 * matrixRight.m30 + matrixLeft.m11 * matrixRight.m31 + matrixLeft.m21 * matrixRight.m32 + matrixLeft.m31 * matrixRight.m33
+
+        result.m02 = matrixLeft.m02 * matrixRight.m00 + matrixLeft.m12 * matrixRight.m01 + matrixLeft.m22 * matrixRight.m02 + matrixLeft.m32 * matrixRight.m03
+        result.m12 = matrixLeft.m02 * matrixRight.m10 + matrixLeft.m12 * matrixRight.m11 + matrixLeft.m22 * matrixRight.m12 + matrixLeft.m32 * matrixRight.m13
+        result.m22 = matrixLeft.m02 * matrixRight.m20 + matrixLeft.m12 * matrixRight.m21 + matrixLeft.m22 * matrixRight.m22 + matrixLeft.m32 * matrixRight.m23
+        result.m32 = matrixLeft.m02 * matrixRight.m30 + matrixLeft.m12 * matrixRight.m31 + matrixLeft.m22 * matrixRight.m32 + matrixLeft.m32 * matrixRight.m33
+
+        result.m03 = matrixLeft.m03 * matrixRight.m00 + matrixLeft.m13 * matrixRight.m01 + matrixLeft.m23 * matrixRight.m02 + matrixLeft.m33 * matrixRight.m03
+        result.m13 = matrixLeft.m03 * matrixRight.m10 + matrixLeft.m13 * matrixRight.m11 + matrixLeft.m23 * matrixRight.m12 + matrixLeft.m33 * matrixRight.m13
+        result.m23 = matrixLeft.m03 * matrixRight.m20 + matrixLeft.m13 * matrixRight.m21 + matrixLeft.m23 * matrixRight.m22 + matrixLeft.m33 * matrixRight.m23
+        result.m33 = matrixLeft.m03 * matrixRight.m30 + matrixLeft.m13 * matrixRight.m31 + matrixLeft.m23 * matrixRight.m32 + matrixLeft.m33 * matrixRight.m33
+
+        return result
+    }
+
+    fun multiply(matrixRight: Matrix) {
+
+        val m00Result = m00 * matrixRight.m00 + m10 * matrixRight.m01 + m20 * matrixRight.m02 + m30 * matrixRight.m03
+        val m10Result = m00 * matrixRight.m10 + m10 * matrixRight.m11 + m20 * matrixRight.m12 + m30 * matrixRight.m13
+        val m20Result = m00 * matrixRight.m20 + m10 * matrixRight.m21 + m20 * matrixRight.m22 + m30 * matrixRight.m23
+        val m30Result = m00 * matrixRight.m30 + m10 * matrixRight.m31 + m20 * matrixRight.m32 + m30 * matrixRight.m33
+
+        val m01Result = m01 * matrixRight.m00 + m11 * matrixRight.m01 + m21 * matrixRight.m02 + m31 * matrixRight.m03
+        val m11Result = m01 * matrixRight.m10 + m11 * matrixRight.m11 + m21 * matrixRight.m12 + m31 * matrixRight.m13
+        val m21Result = m01 * matrixRight.m20 + m11 * matrixRight.m21 + m21 * matrixRight.m22 + m31 * matrixRight.m23
+        val m31Result = m01 * matrixRight.m30 + m11 * matrixRight.m31 + m21 * matrixRight.m32 + m31 * matrixRight.m33
+
+        val m02Result = m02 * matrixRight.m00 + m12 * matrixRight.m01 + m22 * matrixRight.m02 + m32 * matrixRight.m03
+        val m12Result = m02 * matrixRight.m10 + m12 * matrixRight.m11 + m22 * matrixRight.m12 + m32 * matrixRight.m13
+        val m22Result = m02 * matrixRight.m20 + m12 * matrixRight.m21 + m22 * matrixRight.m22 + m32 * matrixRight.m23
+        val m32Result = m02 * matrixRight.m30 + m12 * matrixRight.m31 + m22 * matrixRight.m32 + m32 * matrixRight.m33
+
+        val m03Result = m03 * matrixRight.m00 + m13 * matrixRight.m01 + m23 * matrixRight.m02 + m33 * matrixRight.m03
+        val m13Result = m03 * matrixRight.m10 + m13 * matrixRight.m11 + m23 * matrixRight.m12 + m33 * matrixRight.m13
+        val m23Result = m03 * matrixRight.m20 + m13 * matrixRight.m21 + m23 * matrixRight.m22 + m33 * matrixRight.m23
+        val m33Result = m03 * matrixRight.m30 + m13 * matrixRight.m31 + m23 * matrixRight.m32 + m33 * matrixRight.m33
+
+        m00 = m00Result
+        m10 = m10Result
+        m20 = m20Result
+        m30 = m30Result
+        m01 = m01Result
+        m11 = m11Result
+        m21 = m21Result
+        m31 = m31Result
+        m02 = m02Result
+        m12 = m12Result
+        m22 = m22Result
+        m32 = m32Result
+        m03 = m03Result
+        m13 = m13Result
+        m23 = m23Result
+        m33 = m33Result
+    }
 }

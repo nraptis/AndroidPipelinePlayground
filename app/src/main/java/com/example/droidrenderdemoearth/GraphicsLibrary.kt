@@ -129,6 +129,18 @@ class GraphicsLibrary(activity: GraphicsActivity?,
         }
     }
 
+    fun <T> floatBufferGenerate(item: T): FloatBuffer where T : FloatBufferable {
+
+        val totalSize = item.size()
+        val result = ByteBuffer.allocateDirect(totalSize * Float.SIZE_BYTES).run {
+            order(ByteOrder.nativeOrder())
+            asFloatBuffer()
+        }
+        floatBufferWrite(item, result)
+
+        return result
+    }
+
     fun <T> floatBufferGenerate(array: Array<T>): FloatBuffer where T : FloatBufferable {
 
 
@@ -159,12 +171,25 @@ class GraphicsLibrary(activity: GraphicsActivity?,
 
     fun <T> floatBufferWrite(array: Array<T>, floatBuffer: FloatBuffer?) where T : FloatBufferable {
 
-        floatBuffer?.let {_floatBuffer ->
+        floatBuffer?.let { _floatBuffer ->
             // Reset buffer position to the beginning
             _floatBuffer.position(0)
 
             // Write each Bufferable's data to the buffer
             array.forEach { it.writeToBuffer(_floatBuffer) }
+
+            // Reset buffer position to the beginning
+            _floatBuffer.position(0)
+        }
+    }
+
+    fun <T> floatBufferWrite(item: T, floatBuffer: FloatBuffer?) where T : FloatBufferable {
+
+        floatBuffer?.let { _floatBuffer ->
+            // Reset buffer position to the beginning
+            _floatBuffer.position(0)
+
+            item.writeToBuffer(_floatBuffer)
 
             // Reset buffer position to the beginning
             _floatBuffer.position(0)
@@ -271,7 +296,15 @@ class GraphicsLibrary(activity: GraphicsActivity?,
                 val buffer = ByteBuffer.allocateDirect(pixels.size * 4)
                 buffer.order(ByteOrder.nativeOrder())
                 for (color in pixels) {
-                    buffer.putInt(color and 0x00ffffff or (color and 0xff000000.toInt()).ushr(24))
+                    val alpha = (color shr 24) and 0xFF
+                    val red = (color shr 16) and 0xFF
+                    val green = (color shr 8) and 0xFF
+                    val blue = color and 0xFF
+                    val rgba = ((alpha shl 24) and 0xFF000000.toInt()) or
+                                ((green shl 8) and 0x0000FF00) or
+                                ((blue shl 16) and 0x00FF0000) or
+                                (red and 0x000000FF)
+                    buffer.putInt(rgba)
                 }
                 buffer.position(0)
 

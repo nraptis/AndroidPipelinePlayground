@@ -11,11 +11,6 @@ class GraphicsPipeline(context: Context) {
         get() = contextRef.get()
 
 
-    val shitVertex: Int
-    val shitFragment: Int
-
-
-    val shitProgram: Int
 
 
 
@@ -67,10 +62,6 @@ class GraphicsPipeline(context: Context) {
 
 
     init {
-        // Initialization code here
-        shitVertex = loadShaderVertex("shit_vertex.glsl")
-        shitFragment = loadShaderFragment("shit_fragment.glsl")
-        shitProgram = loadProgram(shitVertex, shitFragment)
 
 
 
@@ -85,6 +76,10 @@ class GraphicsPipeline(context: Context) {
         functionSprite2DFragment = loadShaderFragment("sprite_2d_fragment.glsl")
 
         programSprite2D = ShaderProgramSprite2D("sprite_2d", functionSprite2DVertex, functionSprite2DFragment)
+
+
+
+
 
 
         //

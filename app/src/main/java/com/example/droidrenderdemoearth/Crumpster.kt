@@ -112,9 +112,6 @@ class Crumpster(graphicsPipeline: GraphicsPipeline,
 
      */
 
-    private var positionHandle: Int = 0
-    private var textoeHandle: Int = 0
-
     fun draw() {
         // Add program to OpenGL ES environment
         val piFloat: Float = kotlin.math.PI.toFloat()
@@ -174,24 +171,7 @@ class Crumpster(graphicsPipeline: GraphicsPipeline,
             GLES20.glVertexAttribPointer(program.attributeLocationTextureCoordinates,
                 2, GLES20.GL_FLOAT, false, Float.SIZE_BYTES * 4, Float.SIZE_BYTES * 2)
 
-            /*
-            GLES20.glVertexAttribPointer(
-                        program.,
-                        2,
-                        GLES20.GL_FLOAT,
-                        false,
-                        Float.SIZE_BYTES * 4,
-                        vertexBuffer
-                    )
-*/
 
-
-                    // Draw the triangle
-                    //GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6)
-
-                    //GLES20.glDrawElements()
-
-                    //GLES20.glDrawElements(GL_TRIANGLES, pCount, GL_UNSIGNED_INT, indices)
 
                     GLES20.glDrawElements(GLES20.GL_TRIANGLES, 6, GLES20.GL_UNSIGNED_INT, indexBuffer)
 

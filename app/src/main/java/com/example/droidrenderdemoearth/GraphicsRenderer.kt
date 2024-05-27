@@ -31,11 +31,9 @@ class GraphicsRenderer(context: Context,
 
 
 
-    private lateinit var mTriangle: Triangle
-
-
-
     private lateinit var mCrumpster: Crumpster
+
+    private lateinit var mZippo: Zippo
 
 
 
@@ -53,10 +51,6 @@ class GraphicsRenderer(context: Context,
 
         graphics = GraphicsLibrary(activity, this, graphicsPipeline, surfaceView)
 
-
-        // initialize a triangle
-        mTriangle = Triangle(graphicsPipeline)
-
         var bitmap: Bitmap?
         var bitmap2: Bitmap?
 
@@ -64,23 +58,17 @@ class GraphicsRenderer(context: Context,
         println("hello")
 
         context.let {
-            bitmap = it?.let { it1 -> FileUtils.readFileFromAssetAsBitmap(it1, "test.png") }
-
-            bitmap?.let { println("it.width = " + it.width) }
-            bitmap?.let { println("it.height = " + it.height) }
-
+            bitmap = it?.let { it1 -> FileUtils.readFileFromAssetAsBitmap(it1, "earth_texture.jpg") }
         }
 
         context.let {
             bitmap2 = it?.let { it1 -> FileUtils.readFileFromAssetAsBitmap(it1, "galaxy.jpg") }
-
-            bitmap2?.let { println("it.width = " + it.width) }
-            bitmap2?.let { println("it.height = " + it.height) }
-
         }
 
         mCrumpster = Crumpster(graphicsPipeline, bitmap, graphics)
 
+
+        mZippo = Zippo(graphicsPipeline, bitmap2, graphics)
 
         // Set the background frame color
         GLES20.glClearColor(0.0f, 0.15f, 0.4f, 1.0f)
@@ -90,10 +78,9 @@ class GraphicsRenderer(context: Context,
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
-        mTriangle.draw()
-
-
         mCrumpster.draw()
+
+        mZippo.draw()
 
         surfaceView?.requestRender()
     }

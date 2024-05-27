@@ -8,8 +8,9 @@ open class ShaderProgram(name: String, val vertexShader: Int, val fragmentShader
     var attributeLocationTextureCoordinates = -1
 
     var uniformLocationTexture = -1
-
-
+    var uniformLocationModulateColor = -1
+    var uniformLocationProjectionMatrix = -1
+    var uniformLocationModelViewMatrix = -1
 
     init {
         if ((vertexShader > 0) && (fragmentShader > 0)) {

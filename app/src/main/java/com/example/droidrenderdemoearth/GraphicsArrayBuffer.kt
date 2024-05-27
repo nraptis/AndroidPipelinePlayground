@@ -34,26 +34,8 @@ class GraphicsArrayBuffer<T : FloatBufferable> {
         }
     }
 
-    // Constructor 2: Initialize with an integer size
-    constructor(graphics: GraphicsLibrary?, size: Int) {
-
-        this.graphics = graphics
-
-        //buffer = arrayOfNulls(size)
-        vertexBuffer = FloatBuffer.allocate(size)
-        this.size = size
-        bufferIndex = -1
-
-        graphics?.let { _graphics ->
-            bufferIndex = _graphics.bufferArrayGenerate(size)
-        }
-    }
-
     fun write(array: Array<T>) {
         graphics?.floatBufferWrite(array, vertexBuffer)
         graphics?.bufferArrayWrite(bufferIndex, size, vertexBuffer)
     }
-
-
-    // Other methods and properties
 }

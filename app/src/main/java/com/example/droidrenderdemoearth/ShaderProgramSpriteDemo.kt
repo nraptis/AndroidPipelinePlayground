@@ -9,11 +9,9 @@ class ShaderProgramSpriteDemo(name: String, vertexShader: Int, fragmentShader: I
         attributeLocationTextureCoordinates = getAttributeLocation("TextureCoords")
         uniformLocationTexture = getUniformLocation("Texture")
 
-        print("===> " + name + " ... " + "attributeLocationPosition = " + attributeLocationPosition)
-        print("===> " + name + " ... " + "attributeLocationTextureCoordinates = " + attributeLocationTextureCoordinates)
-        print("===> " + name + " ... " + "uniformLocationTexture = " + uniformLocationTexture)
-
-
+        println("===> " + name + " ... " + "attributeLocationPosition = " + attributeLocationPosition)
+        println("===> " + name + " ... " + "attributeLocationTextureCoordinates = " + attributeLocationTextureCoordinates)
+        println("===> " + name + " ... " + "uniformLocationTexture = " + uniformLocationTexture)
 
     }
 

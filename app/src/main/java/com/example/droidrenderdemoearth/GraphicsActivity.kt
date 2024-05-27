@@ -19,6 +19,11 @@ class GraphicsActivity : Activity() {
         // Create a GLSurfaceView instance and set it
         // as the ContentView for this Activity.
 
+        val width: Int = this.resources.displayMetrics.widthPixels
+        val height: Int = this.resources.displayMetrics.heightPixels
+
+        println("width = " + width)
+        println("height = " + height)
 
 
         gLView = GraphicsSurfaceView(this)
@@ -31,7 +36,6 @@ class GraphicsActivity : Activity() {
 
         val fileContentz2 = FileUtils.readFileFromAssetAsString(this, "shim_sham_sjimmy.txt")
         println(fileContentz2)
-
 
     }
 
